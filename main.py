@@ -104,6 +104,7 @@ class DominionGUI:
         self.supply = create_supply()
         self.root = tk.Tk()
         self.root.title("Dominion")
+        self.selected_card_to_buy = tk.StringVar(self.root)
         self.setup_ui()
         self.start_turn()
 
@@ -113,6 +114,9 @@ class DominionGUI:
 
         self.supply_label = tk.Label(self.root, text="")
         self.supply_label.pack()
+
+        self.buy_options_menu = tk.OptionMenu(self.root, self.selected_card_to_buy, *self.supply.keys())
+        self.buy_options_menu.pack()
 
         self.buy_button = tk.Button(self.root, text="Buy Card", command=self.buy_card)
         self.buy_button.pack()
@@ -128,16 +132,27 @@ class DominionGUI:
         supply_text = "Supply: " + ', '.join(f"{name}: {len(stack)}" for name, stack in self.supply.items())
         self.supply_label.config(text=supply_text)
 
+        # Update the buy options menu
+        menu = self.buy_options_menu["menu"]
+        menu.delete(0, "end")
+        for card_name in self.supply.keys():
+            menu.add_command(label=card_name, command=lambda value=card_name: self.selected_card_to_buy.set(value))
+        self.selected_card_to_buy.set('')
+
     def start_turn(self):
         self.update_ui()
 
     def buy_card(self):
-        player = self.players[self.current_player_index]
-        # Implement card buying logic and update UI
-        # ...
+        card_name = self.selected_card_to_buy.get()
+        if card_name and self.supply[card_name]:
+            player = self.players[self.current_player_index]
+            # Simplified check: Assume player can always afford the card
+            bought_card = self.supply[card_name].pop()
+            player.discard.append(bought_card)
+            messagebox.showinfo("Purchase", f"Bought {bought_card}")
+            self.update_ui()
 
     def end_turn(self):
-        # Handle end of turn logic
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
         self.start_turn()
 
@@ -148,6 +163,3 @@ class DominionGUI:
 players = [Player("Alice"), Player("Bob")]
 app = DominionGUI(players)
 app.run()
-
-# players = [Player("Alice"), Player("Bob")]
-# play_game(players)
