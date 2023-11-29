@@ -1,4 +1,6 @@
 import random
+import tkinter as tk
+from tkinter import messagebox
 
 # Basic card definitions
 class Card:
@@ -74,6 +76,9 @@ class Player:
         self.hand = []
         self.draw(5)
 
+    def show_discard(self):
+        return ', '.join([str(card) for card in self.discard])
+
 # Main game loop
 def play_game(players):
     supply = create_supply()
@@ -89,6 +94,60 @@ def play_game(players):
         score = sum(card.victory_points for card in player.deck + player.hand + player.discard)
         print(f"{player.name}: {score} points")
 
-# Example game
+import tkinter as tk
+from tkinter import simpledialog, messagebox
+
+class DominionGUI:
+    def __init__(self, players):
+        self.players = players
+        self.current_player_index = 0
+        self.supply = create_supply()
+        self.root = tk.Tk()
+        self.root.title("Dominion")
+        self.setup_ui()
+        self.start_turn()
+
+    def setup_ui(self):
+        self.player_hand_label = tk.Label(self.root, text="")
+        self.player_hand_label.pack()
+
+        self.supply_label = tk.Label(self.root, text="")
+        self.supply_label.pack()
+
+        self.buy_button = tk.Button(self.root, text="Buy Card", command=self.buy_card)
+        self.buy_button.pack()
+
+        self.end_turn_button = tk.Button(self.root, text="End Turn", command=self.end_turn)
+        self.end_turn_button.pack()
+
+    def update_ui(self):
+        player = self.players[self.current_player_index]
+        hand_text = f"{player.name}'s hand: " + player.show_hand()
+        self.player_hand_label.config(text=hand_text)
+
+        supply_text = "Supply: " + ', '.join(f"{name}: {len(stack)}" for name, stack in self.supply.items())
+        self.supply_label.config(text=supply_text)
+
+    def start_turn(self):
+        self.update_ui()
+
+    def buy_card(self):
+        player = self.players[self.current_player_index]
+        # Implement card buying logic and update UI
+        # ...
+
+    def end_turn(self):
+        # Handle end of turn logic
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.start_turn()
+
+    def run(self):
+        self.root.mainloop()
+
+# Example usage
 players = [Player("Alice"), Player("Bob")]
-play_game(players)
+app = DominionGUI(players)
+app.run()
+
+# players = [Player("Alice"), Player("Bob")]
+# play_game(players)
